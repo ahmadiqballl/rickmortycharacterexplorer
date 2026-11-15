@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/character_model.dart';
 import '../services/api_service.dart';
 import '../services/favorite_service.dart';
+import '../theme/rick_morty_theme.dart';
 import 'detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,6 +34,15 @@ class HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> refreshFavorites() async {
+    final favs = await FavoriteService.getFavorites();
+    if (mounted) {
+      setState(() {
+        _favoriteIds = favs.map((e) => e.id).toSet();
+      });
+    }
   }
 
   Future<void> _fetchCharacters() async {
@@ -67,15 +77,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> refreshFavorites() async {
-    final favs = await FavoriteService.getFavorites();
-    if (mounted) {
-      setState(() {
-        _favoriteIds = favs.map((e) => e.id).toSet();
-      });
-    }
-  }
-
   Future<void> _toggleFavorite(Character character) async {
     final isNowFav = await FavoriteService.toggleFavorite(character);
     if (!mounted) return;
@@ -90,15 +91,16 @@ class HomeScreenState extends State<HomeScreen> {
 
     widget.onFavoriteChanged?.call();
 
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           isNowFav
-              ? '${character.name} ditambahkan ke favorit!'
-              : '${character.name} dihapus dari favorit!',
+              ? '💚 ${character.name} disimpan ke Favorit!'
+              : '💔 ${character.name} dihapus dari Favorit!',
         ),
         duration: const Duration(seconds: 2),
-        backgroundColor: isNowFav ? Colors.green : Colors.redAccent,
+        backgroundColor: RickMortyColors.cardDark,
       ),
     );
   }
@@ -106,11 +108,11 @@ class HomeScreenState extends State<HomeScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'alive':
-        return Colors.green;
+        return RickMortyColors.statusAlive;
       case 'dead':
-        return Colors.red;
+        return RickMortyColors.statusDead;
       default:
-        return Colors.grey;
+        return RickMortyColors.statusUnknown;
     }
   }
 
@@ -120,27 +122,22 @@ class HomeScreenState extends State<HomeScreen> {
       children: [
         // Search Bar (Bonus)
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
           child: TextField(
             controller: _searchController,
+            style: const TextStyle(color: RickMortyColors.textWhite),
             decoration: InputDecoration(
-              hintText: 'Cari nama karakter...',
-              prefixIcon: const Icon(Icons.search),
+              hintText: 'Cari karakter (cth: Rick, Morty)...',
+              prefixIcon: const Icon(Icons.search, color: RickMortyColors.portalGreen),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: const Icon(Icons.clear, color: RickMortyColors.textDim),
                       onPressed: () {
                         _searchController.clear();
                         _fetchCharacters();
                       },
                     )
                   : null,
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             ),
             onSubmitted: (_) => _fetchCharacters(),
           ),
@@ -149,7 +146,7 @@ class HomeScreenState extends State<HomeScreen> {
         // Filter Bar (All, Alive, Dead, Unknown)
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: Row(
             children: _statusFilters.map((status) {
               final isSelected = _selectedStatus == status;
@@ -158,11 +155,16 @@ class HomeScreenState extends State<HomeScreen> {
                 child: FilterChip(
                   label: Text(status),
                   selected: isSelected,
-                  selectedColor: Colors.teal.withValues(alpha: 0.2),
-                  checkmarkColor: Colors.teal,
+                  backgroundColor: RickMortyColors.cardDark,
+                  selectedColor: RickMortyColors.portalGreen.withValues(alpha: 0.25),
+                  checkmarkColor: RickMortyColors.portalGreen,
+                  side: BorderSide(
+                    color: isSelected ? RickMortyColors.portalGreen : RickMortyColors.borderGlow,
+                    width: isSelected ? 1.5 : 1.0,
+                  ),
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.teal : Colors.black87,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? RickMortyColors.portalGreen : RickMortyColors.textDim,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   ),
                   onSelected: (selected) {
                     if (selected) {
@@ -192,9 +194,12 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Colors.teal),
+            CircularProgressIndicator(color: RickMortyColors.portalGreen),
             SizedBox(height: 16),
-            Text('Memuat daftar karakter...'),
+            Text(
+              'Menghubungkan ke Portal API...',
+              style: TextStyle(color: RickMortyColors.portalGreen, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       );
@@ -207,27 +212,27 @@ class HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.wifi_off_rounded, size: 64, color: Colors.redAccent),
+              const Icon(Icons.sensors_off_rounded, size: 64, color: RickMortyColors.dangerLaser),
               const SizedBox(height: 12),
               const Text(
-                'Terjadi Kesalahan',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                'Gangguan Antar Dimensi',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: RickMortyColors.dangerLaser,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
+                style: const TextStyle(color: RickMortyColors.textDim),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: _fetchCharacters,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Coba Lagi'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                ),
+                label: const Text('COBA LAGI'),
               ),
             ],
           ),
@@ -240,13 +245,13 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.search_off, size: 64, color: Colors.grey),
+            const Icon(Icons.search_off, size: 64, color: RickMortyColors.textDim),
             const SizedBox(height: 12),
             const Text(
-              'Tidak ada karakter yang cocok',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              'Karakter tidak ditemukan di dimensi ini',
+              style: TextStyle(fontSize: 16, color: RickMortyColors.textDim),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             TextButton(
               onPressed: () {
                 _searchController.clear();
@@ -262,76 +267,127 @@ class HomeScreenState extends State<HomeScreen> {
 
     return RefreshIndicator(
       onRefresh: _fetchCharacters,
-      color: Colors.teal,
-      child: ListView.separated(
+      color: RickMortyColors.portalGreen,
+      backgroundColor: RickMortyColors.cardDark,
+      child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: _characters.length,
-        separatorBuilder: (context, index) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final char = _characters[index];
           final isFav = _favoriteIds.contains(char.id);
+          final statusColor = _getStatusColor(char.status);
 
-          return ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            leading: Hero(
-              tag: 'char-${char.id}',
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  char.image,
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 56,
-                    height: 56,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.person, color: Colors.grey),
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailScreen(character: char),
                   ),
+                );
+                await refreshFavorites();
+                widget.onFavoriteChanged?.call();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    // Avatar Image with glowing border
+                    Hero(
+                      tag: 'char-${char.id}',
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: statusColor.withValues(alpha: 0.6),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            char.image,
+                            width: 64,
+                            height: 64,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              width: 64,
+                              height: 64,
+                              color: RickMortyColors.surfaceDark,
+                              child: const Icon(Icons.person, color: RickMortyColors.textDim),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    // Details
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            char.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: RickMortyColors.textWhite,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: statusColor,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: statusColor.withValues(alpha: 0.6),
+                                      blurRadius: 6,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  '${char.status} - ${char.species}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: RickMortyColors.textDim,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Favorite Button
+                    IconButton(
+                      icon: Icon(
+                        isFav ? Icons.favorite : Icons.favorite_border,
+                        color: isFav ? RickMortyColors.dangerLaser : RickMortyColors.textDim,
+                        size: 24,
+                      ),
+                      onPressed: () => _toggleFavorite(char),
+                      tooltip: isFav ? 'Hapus favorit' : 'Tambah favorit',
+                    ),
+                  ],
                 ),
               ),
             ),
-            title: Text(
-              char.name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            subtitle: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _getStatusColor(char.status),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '${char.status} - ${char.species}',
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                ),
-              ],
-            ),
-            trailing: IconButton(
-              icon: Icon(
-                isFav ? Icons.favorite : Icons.favorite_border,
-                color: isFav ? Colors.redAccent : Colors.grey,
-              ),
-              onPressed: () => _toggleFavorite(char),
-              tooltip: isFav ? 'Hapus favorit' : 'Tambah favorit',
-            ),
-            onTap: () async {
-              // Navigasi ke DetailScreen
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailScreen(character: char),
-                ),
-              );
-              // Segarkan status favorit saat kembali dari DetailScreen
-              await refreshFavorites();
-              widget.onFavoriteChanged?.call();
-            },
           );
         },
       ),

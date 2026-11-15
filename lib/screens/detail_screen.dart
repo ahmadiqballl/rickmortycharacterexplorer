@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/character_model.dart';
 import '../services/favorite_service.dart';
+import '../theme/rick_morty_theme.dart';
 
 class DetailScreen extends StatefulWidget {
   final Character character;
@@ -39,15 +40,16 @@ class _DetailScreenState extends State<DetailScreen> {
       _isFavorite = newStatus;
     });
 
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           newStatus
-              ? '${widget.character.name} ditambahkan ke favorit!'
-              : '${widget.character.name} dihapus dari favorit!',
+              ? '💚 ${widget.character.name} ditambahkan ke favorit!'
+              : '💔 ${widget.character.name} dihapus dari favorit!',
         ),
         duration: const Duration(seconds: 2),
-        backgroundColor: newStatus ? Colors.green : Colors.redAccent,
+        backgroundColor: RickMortyColors.cardDark,
       ),
     );
   }
@@ -55,40 +57,55 @@ class _DetailScreenState extends State<DetailScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'alive':
-        return Colors.green;
+        return RickMortyColors.statusAlive;
       case 'dead':
-        return Colors.red;
+        return RickMortyColors.statusDead;
       default:
-        return Colors.grey;
+        return RickMortyColors.statusUnknown;
     }
   }
 
   Widget _buildInfoTile(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: RickMortyColors.cardDark,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: RickMortyColors.borderGlow),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.teal, size: 24),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: RickMortyColors.portalGreen.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: RickMortyColors.portalGreen, size: 22),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
+                  label.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    letterSpacing: 1.0,
+                    color: RickMortyColors.textDim,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 4),
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: RickMortyColors.textWhite,
                   ),
                 ),
               ],
@@ -102,10 +119,11 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   Widget build(BuildContext context) {
     final char = widget.character;
+    final statusColor = _getStatusColor(char.status);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(char.name),
+        title: Text(char.name.toUpperCase()),
         actions: [
           if (_isLoadingFav)
             const Padding(
@@ -113,14 +131,15 @@ class _DetailScreenState extends State<DetailScreen> {
               child: SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(strokeWidth: 2, color: RickMortyColors.portalGreen),
               ),
             )
           else
             IconButton(
               icon: Icon(
                 _isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: _isFavorite ? Colors.redAccent : null,
+                color: _isFavorite ? RickMortyColors.dangerLaser : RickMortyColors.portalGreen,
+                size: 26,
               ),
               onPressed: _toggleFavorite,
               tooltip: _isFavorite ? 'Hapus dari Favorit' : 'Tambah ke Favorit',
@@ -130,23 +149,40 @@ class _DetailScreenState extends State<DetailScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Gambar Karakter
-            Hero(
-              tag: 'char-${char.id}',
-              child: AspectRatio(
-                aspectRatio: 1.1,
-                child: Image.network(
-                  char.image,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.broken_image, size: 80, color: Colors.grey),
+            // Gambar Karakter dengan Neon Border Frame
+            Container(
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: RickMortyColors.portalGreen.withValues(alpha: 0.5), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: RickMortyColors.portalGreen.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Hero(
+                  tag: 'char-${char.id}',
+                  child: AspectRatio(
+                    aspectRatio: 1.1,
+                    child: Image.network(
+                      char.image,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: RickMortyColors.cardDark,
+                        child: const Icon(Icons.broken_image, size: 80, color: RickMortyColors.textDim),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -159,17 +195,19 @@ class _DetailScreenState extends State<DetailScreen> {
                           char.name,
                           style: const TextStyle(
                             fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: RickMortyColors.textWhite,
                           ),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(char.status).withValues(alpha: 0.15),
+                          color: statusColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: _getStatusColor(char.status),
+                            color: statusColor,
                             width: 1.5,
                           ),
                         ),
@@ -181,15 +219,17 @@ class _DetailScreenState extends State<DetailScreen> {
                               height: 8,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: _getStatusColor(char.status),
+                                color: statusColor,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              char.status,
+                              char.status.toUpperCase(),
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: _getStatusColor(char.status),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 12,
+                                letterSpacing: 0.8,
+                                color: statusColor,
                               ),
                             ),
                           ],
@@ -198,24 +238,23 @@ class _DetailScreenState extends State<DetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  const Divider(),
-                  const SizedBox(height: 12),
                   const Text(
-                    'Informasi Karakter',
+                    'SPESIFIKASI SUBJEK',
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                      color: RickMortyColors.rickHairCyan,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   _buildInfoTile(Icons.category_outlined, 'Spesies', char.species),
                   if (char.type.isNotEmpty)
                     _buildInfoTile(Icons.fingerprint, 'Tipe Sub-spesies', char.type),
                   _buildInfoTile(Icons.transgender, 'Gender', char.gender),
                   _buildInfoTile(Icons.public, 'Origin (Asal)', char.originName),
                   _buildInfoTile(Icons.location_on_outlined, 'Location Terakhir', char.locationName),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
                   // Tombol Favorite Lebar di Bawah
                   SizedBox(
                     width: double.infinity,
@@ -223,22 +262,23 @@ class _DetailScreenState extends State<DetailScreen> {
                       onPressed: _isLoadingFav ? null : _toggleFavorite,
                       icon: Icon(
                         _isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: Colors.white,
+                        color: _isFavorite ? Colors.white : const Color(0xFF0A140E),
                       ),
                       label: Text(
-                        _isFavorite ? 'Hapus dari Daftar Favorit' : 'Tambahkan ke Favorit',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        _isFavorite ? 'HAPUS DARI FAVORIT' : 'SIMPAN KE FAVORIT',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: _isFavorite ? Colors.white : const Color(0xFF0A140E),
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isFavorite ? Colors.redAccent : Colors.teal,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        backgroundColor: _isFavorite ? RickMortyColors.dangerLaser : RickMortyColors.portalGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

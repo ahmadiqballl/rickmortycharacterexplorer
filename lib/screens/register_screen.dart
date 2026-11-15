@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../helpers/database_helper.dart';
 import '../models/user_model.dart';
+import '../theme/rick_morty_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -46,16 +47,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (result != -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Registrasi berhasil! Silakan login.'),
-          backgroundColor: Colors.green,
+          content: Text(' Registrasi berhasil! Silakan masuk.'),
+          backgroundColor: RickMortyColors.cardDark,
         ),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Username sudah terdaftar! Gunakan username lain.'),
-          backgroundColor: Colors.red,
+          content: Text('⚠️ Username sudah terdaftar di dimensi ini!'),
+          backgroundColor: RickMortyColors.dangerLaser,
         ),
       );
     }
@@ -65,47 +66,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Account'),
+        title: const Text('REGISTRASI WARGA'),
       ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.person_add_alt_1_rounded,
-                    size: 80,
-                    color: Colors.teal,
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: RickMortyColors.cardDark,
+                        border: Border.all(color: RickMortyColors.rickHairCyan, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.badge_outlined,
+                        size: 54,
+                        color: RickMortyColors.rickHairCyan,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   const Text(
-                    'Buat Akun Baru',
+                    'Identitas Baru',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
+                      color: RickMortyColors.textWhite,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   const Text(
-                    'Daftar untuk menjelajahi karakter Rick & Morty',
+                    'Daftarkan ID kamu untuk otorisasi akses portal',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: RickMortyColors.textDim),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 30),
                   TextFormField(
                     controller: _usernameController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Username',
-                      prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -133,9 +142,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _obscurePassword = !_obscurePassword;
                           });
                         },
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     validator: (value) {
@@ -165,9 +171,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           });
                         },
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
                     ),
                     validator: (value) {
                       if (value != _passwordController.text) {
@@ -176,39 +179,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _register,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.teal,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
                     child: _isLoading
                         ? const SizedBox(
-                            height: 20,
-                            width: 20,
+                            height: 22,
+                            width: 22,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                              strokeWidth: 2.5,
+                              color: Color(0xFF0A140E),
                             ),
                           )
-                        : const Text(
-                            'Daftar Sekarang',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                        : const Text('DAFTAR SEKARANG'),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Sudah punya akun?'),
+                      const Text(
+                        'Sudah punya ID? ',
+                        style: TextStyle(color: RickMortyColors.textDim),
+                      ),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Login'),
+                        child: const Text('Masuk'),
                       ),
                     ],
                   ),

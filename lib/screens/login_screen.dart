@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../helpers/database_helper.dart';
 import '../helpers/shared_pref_helper.dart';
+import '../theme/rick_morty_theme.dart';
 import 'register_screen.dart';
 import 'main_nav_screen.dart';
 
@@ -46,8 +47,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Selamat datang kembali, ${user.username}!'),
-          backgroundColor: Colors.green,
+          content: Text('⚡ Selamat datang di Citadel, ${user.username}!'),
+          backgroundColor: RickMortyColors.cardDark,
         ),
       );
 
@@ -58,8 +59,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Username atau password salah!'),
-          backgroundColor: Colors.red,
+          content: Text('⚠️ Username atau password salah!'),
+          backgroundColor: RickMortyColors.dangerLaser,
         ),
       );
     }
@@ -71,43 +72,64 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.travel_explore_rounded,
-                    size: 90,
-                    color: Colors.teal,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Rick & Morty Explorer',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+                  // Portal Icon with Green Glow Box
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: RickMortyColors.cardDark,
+                        border: Border.all(color: RickMortyColors.portalGreen, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: RickMortyColors.portalGreen.withValues(alpha: 0.35),
+                            blurRadius: 24,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.blur_circular_rounded,
+                        size: 70,
+                        color: RickMortyColors.portalGreen,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 24),
                   const Text(
-                    'Masuk untuk melanjutkan petualangan',
+                    'RICK & MORTY',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2.0,
+                      color: RickMortyColors.portalGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'DIMENSION C-137 DATABASE',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: RickMortyColors.rickHairCyan,
+                    ),
                   ),
                   const SizedBox(height: 36),
                   TextFormField(
                     controller: _usernameController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Username',
-                      prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      prefixIcon: Icon(Icons.person_pin),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -122,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline),
+                      prefixIcon: const Icon(Icons.key_rounded),
                       suffixIcon: IconButton(
                         icon: Icon(_obscurePassword
                             ? Icons.visibility_off
@@ -133,9 +155,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         },
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -144,36 +163,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _login,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.teal,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
                     child: _isLoading
                         ? const SizedBox(
-                            height: 20,
-                            width: 20,
+                            height: 22,
+                            width: 22,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                              strokeWidth: 2.5,
+                              color: Color(0xFF0A140E),
                             ),
                           )
-                        : const Text(
-                            'Login',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                        : const Text('MASUK PORTAL'),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Belum punya akun?'),
+                      const Text(
+                        'Belum terdaftar di Citadel? ',
+                        style: TextStyle(color: RickMortyColors.textDim),
+                      ),
                       TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -183,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         },
-                        child: const Text('Daftar di sini'),
+                        child: const Text('Buat Akun'),
                       ),
                     ],
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../helpers/shared_pref_helper.dart';
+import '../theme/rick_morty_theme.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
 import 'favorite_screen.dart';
@@ -28,7 +29,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
   Future<void> _loadUser() async {
     final name = await SharedPrefHelper.getUsername();
     setState(() {
-      _username = name ?? 'User';
+      _username = name ?? 'Explorer';
     });
   }
 
@@ -36,17 +37,31 @@ class _MainNavScreenState extends State<MainNavScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Logout'),
-        content: const Text('Apakah kamu yakin ingin keluar dari akun?'),
+        backgroundColor: RickMortyColors.cardDark,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: RickMortyColors.borderGlow),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.exit_to_app_rounded, color: RickMortyColors.dangerLaser),
+            SizedBox(width: 10),
+            Text('Keluar Portal?', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Apakah kamu yakin ingin menutup sesi dimensi ini dan kembali ke gerbang login?',
+          style: TextStyle(color: RickMortyColors.textDim),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+            child: const Text('Batal', style: TextStyle(color: RickMortyColors.textDim)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: RickMortyColors.dangerLaser,
               foregroundColor: Colors.white,
             ),
             child: const Text('Logout'),
@@ -86,26 +101,75 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentIndex == 0
-            ? 'Rick & Morty'
-            : _currentIndex == 1
-                ? 'Favorites'
-                : 'Episodes View'),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Center(
-              child: Text(
-                _username,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        title: Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: RickMortyColors.portalGreen,
+                boxShadow: [
+                  BoxShadow(
+                    color: RickMortyColors.portalGreen,
+                    blurRadius: 8,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _currentIndex == 0
+                    ? 'CITADEL'
+                    : _currentIndex == 1
+                        ? 'FAVORITES'
+                        : 'EPISODES',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: RickMortyColors.cardDark,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: RickMortyColors.borderGlow),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.account_circle, size: 16, color: RickMortyColors.portalGreen),
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 85),
+                  child: Text(
+                    _username,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: RickMortyColors.textWhite,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           IconButton(
-            tooltip: 'Logout',
-            icon: const Icon(Icons.logout),
+            tooltip: 'Tutup Portal (Logout)',
+            icon: const Icon(Icons.power_settings_new_rounded, color: RickMortyColors.dangerLaser),
             onPressed: _logout,
           ),
         ],
@@ -128,18 +192,18 @@ class _MainNavScreenState extends State<MainNavScreen> {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
+            icon: Icon(Icons.people_alt_outlined),
+            selectedIcon: Icon(Icons.people_alt_rounded),
             label: 'Characters',
           ),
           NavigationDestination(
-            icon: Icon(Icons.favorite_outline),
-            selectedIcon: Icon(Icons.favorite),
+            icon: Icon(Icons.favorite_border_rounded),
+            selectedIcon: Icon(Icons.favorite_rounded),
             label: 'Favorites',
           ),
           NavigationDestination(
-            icon: Icon(Icons.movie_outlined),
-            selectedIcon: Icon(Icons.movie),
+            icon: Icon(Icons.video_library_outlined),
+            selectedIcon: Icon(Icons.video_library_rounded),
             label: 'Episodes',
           ),
         ],

@@ -5,6 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'helpers/shared_pref_helper.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_nav_screen.dart';
+import 'theme/rick_morty_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,13 +30,7 @@ class RickAndMortyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Rick & Morty Explorer',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.teal,
-          brightness: Brightness.light,
-        ),
-      ),
+      theme: RickMortyTheme.darkTheme,
       home: isLoggedIn ? const MainNavScreen() : const LoginScreen(),
     );
   }

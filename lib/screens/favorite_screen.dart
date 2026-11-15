@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/character_model.dart';
 import '../services/favorite_service.dart';
+import '../theme/rick_morty_theme.dart';
 import 'detail_screen.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -47,12 +48,12 @@ class FavoriteScreenState extends State<FavoriteScreen> {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${deletedChar.name} dihapus dari favorit'),
-        backgroundColor: Colors.redAccent,
+        content: Text('💔 ${deletedChar.name} telah dieliminasi dari Favorit'),
+        backgroundColor: RickMortyColors.cardDark,
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'BATAL',
-          textColor: Colors.white,
+          textColor: RickMortyColors.portalGreen,
           onPressed: () async {
             await FavoriteService.toggleFavorite(deletedChar);
             loadFavorites();
@@ -66,11 +67,11 @@ class FavoriteScreenState extends State<FavoriteScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'alive':
-        return Colors.green;
+        return RickMortyColors.statusAlive;
       case 'dead':
-        return Colors.red;
+        return RickMortyColors.statusDead;
       default:
-        return Colors.grey;
+        return RickMortyColors.statusUnknown;
     }
   }
 
@@ -78,7 +79,7 @@ class FavoriteScreenState extends State<FavoriteScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Colors.teal),
+        child: CircularProgressIndicator(color: RickMortyColors.portalGreen),
       );
     }
 
@@ -89,25 +90,35 @@ class FavoriteScreenState extends State<FavoriteScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.favorite_border_rounded,
-                size: 80,
-                color: Colors.grey.shade400,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Belum Ada Karakter Favorit',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: RickMortyColors.cardDark,
+                  border: Border.all(color: RickMortyColors.borderGlow, width: 2),
+                ),
+                child: const Icon(
+                  Icons.favorite_border_rounded,
+                  size: 64,
+                  color: RickMortyColors.dangerLaser,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Karakter yang kamu tandai dengan ikon hati akan muncul di sini. Coba tambahkan karakter favorit dari Home!',
+              const SizedBox(height: 20),
+              const Text(
+                'TIDAK ADA SPESIMEN FAVORIT',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                  color: RickMortyColors.textWhite,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Tandai karakter yang kamu sukai dengan ikon hati di tab Characters untuk menyimpannya di sini.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: RickMortyColors.textDim, fontSize: 13, height: 1.4),
               ),
             ],
           ),
@@ -120,6 +131,7 @@ class FavoriteScreenState extends State<FavoriteScreen> {
       itemCount: _favorites.length,
       itemBuilder: (context, index) {
         final char = _favorites[index];
+        final statusColor = _getStatusColor(char.status);
 
         return Dismissible(
           key: Key('fav-${char.id}'),
@@ -129,19 +141,20 @@ class FavoriteScreenState extends State<FavoriteScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.redAccent,
-              borderRadius: BorderRadius.circular(12),
+              color: RickMortyColors.dangerLaser,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.delete, color: Colors.white),
+                Icon(Icons.delete_sweep_rounded, color: Colors.white, size: 28),
                 SizedBox(width: 8),
                 Text(
-                  'Hapus',
+                  'HAPUS',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.0,
                   ),
                 ),
               ],
@@ -152,49 +165,8 @@ class FavoriteScreenState extends State<FavoriteScreen> {
           },
           child: Card(
             margin: const EdgeInsets.symmetric(vertical: 6),
-            elevation: 1.5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  char.image,
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 56,
-                    height: 56,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.person, color: Colors.grey),
-                  ),
-                ),
-              ),
-              title: Text(
-                char.name,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              subtitle: Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _getStatusColor(char.status),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${char.status} - ${char.species}',
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                  ),
-                ],
-              ),
-              trailing: const Icon(Icons.swipe_left_rounded, color: Colors.grey, size: 20),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
               onTap: () async {
                 await Navigator.push(
                   context,
@@ -205,6 +177,88 @@ class FavoriteScreenState extends State<FavoriteScreen> {
                 loadFavorites();
                 widget.onFavoriteChanged?.call();
               },
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: statusColor.withValues(alpha: 0.6),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          char.image,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 60,
+                            height: 60,
+                            color: RickMortyColors.surfaceDark,
+                            child: const Icon(Icons.person, color: RickMortyColors.textDim),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            char.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: RickMortyColors.textWhite,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: statusColor,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  '${char.status} - ${char.species}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: RickMortyColors.textDim,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Icon(
+                        Icons.swipe_left_rounded,
+                        color: RickMortyColors.dangerLaser,
+                        size: 22,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         );
