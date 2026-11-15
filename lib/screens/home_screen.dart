@@ -5,13 +5,15 @@ import '../services/favorite_service.dart';
 import 'detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback? onFavoriteChanged;
+
+  const HomeScreen({super.key, this.onFavoriteChanged});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Character> _characters = [];
   Set<int> _favoriteIds = {};
@@ -65,6 +67,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> refreshFavorites() async {
+    final favs = await FavoriteService.getFavorites();
+    if (mounted) {
+      setState(() {
+        _favoriteIds = favs.map((e) => e.id).toSet();
+      });
+    }
+  }
+
   Future<void> _toggleFavorite(Character character) async {
     final isNowFav = await FavoriteService.toggleFavorite(character);
     if (!mounted) return;
@@ -76,6 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _favoriteIds.remove(character.id);
       }
     });
+
+    widget.onFavoriteChanged?.call();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -316,12 +329,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
               // Segarkan status favorit saat kembali dari DetailScreen
-              final favs = await FavoriteService.getFavorites();
-              if (mounted) {
-                setState(() {
-                  _favoriteIds = favs.map((e) => e.id).toSet();
-                });
-              }
+              await refreshFavorites();
+              widget.onFavoriteChanged?.call();
             },
           );
         },

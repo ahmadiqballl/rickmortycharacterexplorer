@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../helpers/shared_pref_helper.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
+import 'favorite_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});
@@ -13,6 +14,9 @@ class MainNavScreen extends StatefulWidget {
 class _MainNavScreenState extends State<MainNavScreen> {
   int _currentIndex = 0;
   String _username = '';
+
+  final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
+  final GlobalKey<FavoriteScreenState> _favKey = GlobalKey<FavoriteScreenState>();
 
   @override
   void initState() {
@@ -64,24 +68,17 @@ class _MainNavScreenState extends State<MainNavScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      const HomeScreen(),
-      Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.favorite_outline, size: 72, color: Colors.redAccent),
-            const SizedBox(height: 16),
-            Text(
-              'Favorite Screen',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '(Masi coming soon bossssssssssss)',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
+      HomeScreen(
+        key: _homeKey,
+        onFavoriteChanged: () {
+          _favKey.currentState?.loadFavorites();
+        },
+      ),
+      FavoriteScreen(
+        key: _favKey,
+        onFavoriteChanged: () {
+          _homeKey.currentState?.refreshFavorites();
+        },
       ),
       Center(
         child: Column(
@@ -95,7 +92,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              '(Masi coming soon bossssssssssss)',
+              '(Masi coming soon bosssssssssss)',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -129,13 +126,21 @@ class _MainNavScreenState extends State<MainNavScreen> {
           ),
         ],
       ),
-      body: pages[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: pages,
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
           setState(() {
             _currentIndex = index;
           });
+          if (index == 0) {
+            _homeKey.currentState?.refreshFavorites();
+          } else if (index == 1) {
+            _favKey.currentState?.loadFavorites();
+          }
         },
         destinations: const [
           NavigationDestination(
