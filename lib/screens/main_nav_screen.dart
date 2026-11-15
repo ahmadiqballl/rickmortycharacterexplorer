@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../helpers/shared_pref_helper.dart';
 import 'login_screen.dart';
+import 'home_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});
@@ -63,26 +64,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.people_outline, size: 72, color: Colors.teal),
-            const SizedBox(height: 16),
-            Text(
-              'Home Screen (Characters)',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text('Login sebagai: $_username'),
-            const SizedBox(height: 8),
-            const Text(
-              '(Masii coming soon bossssssssssssssss)',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
+      const HomeScreen(),
       Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -95,7 +77,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              '(Masii coming soon bossssssssssssssss)',
+              '(Masi coming soon bossssssssssss)',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -113,7 +95,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              '(Masii coming soon bossssssssssssssss)',
+              '(Masi coming soon bossssssssssss)',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -123,10 +105,23 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rick & Morty Explorer'),
+        title: Text(_currentIndex == 0
+            ? 'Rick & Morty'
+            : _currentIndex == 1
+                ? 'Favorites'
+                : 'Episodes'),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
         actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Center(
+              child: Text(
+                _username,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
           IconButton(
             tooltip: 'Logout',
             icon: const Icon(Icons.logout),
