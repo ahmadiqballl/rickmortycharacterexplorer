@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/character_model.dart';
+import '../models/episode_model.dart';
 
 class ApiService {
   static const String baseUrl = 'https://rickandmortyapi.com/api';
@@ -42,6 +43,23 @@ class ApiService {
       return Character.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Gagal memuat detail karakter (Status Code: ${response.statusCode})');
+    }
+  }
+
+  static Future<List<Episode>> getEpisodes() async {
+    final uri = Uri.parse('$baseUrl/episode');
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List results = data['results'] ?? [];
+        return results.map((item) => Episode.fromJson(item)).toList();
+      } else {
+        throw Exception('Gagal memuat episode (Status Code: ${response.statusCode})');
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

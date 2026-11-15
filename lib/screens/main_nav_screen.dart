@@ -3,6 +3,7 @@ import '../helpers/shared_pref_helper.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
 import 'favorite_screen.dart';
+import 'episode_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});
@@ -80,24 +81,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
           _homeKey.currentState?.refreshFavorites();
         },
       ),
-      Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.movie_outlined, size: 72, color: Colors.blueAccent),
-            const SizedBox(height: 16),
-            Text(
-              'Episodes Screen',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '(Masi coming soon bosssssssssss)',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
+      const EpisodeScreen(),
     ];
 
     return Scaffold(
@@ -106,7 +90,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
             ? 'Rick & Morty'
             : _currentIndex == 1
                 ? 'Favorites'
-                : 'Episodes'),
+                : 'Episodes View'),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
         actions: [
